@@ -1,6 +1,6 @@
 # SkillStack
 
-After setting up all the files open the backend folder in Visual Studio Code and run he below commands
+After setting up all the files open the backend folder in Visual Studio Code and run the below commands
 1) python -m venv venv
 2) venv\Scripts\activate
 3) python app.py
