@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SkillStack - Personal Skill Tracker</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(to right, #4facfe, #00f2fe);
+        color: #333;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+        padding: 40px 20px;
+      }
+
+      #root {
+        width: 100%;
+        max-width: 1000px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
+        padding: 30px;
+        overflow: hidden;
+      }
+
+      h1 {
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 20px;
+        color: #2c3e50;
+      }
+
+      @media screen and (max-width: 768px) {
+        body {
+          padding: 20px 10px;
+        }
+
+        #root {
+          padding: 20px;
+        }
+
+        h1 {
+          font-size: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <h1>Loading SkillStack...</h1>
+    </div>
+  </body>
+</html>

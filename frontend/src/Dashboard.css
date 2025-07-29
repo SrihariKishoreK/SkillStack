@@ -1,0 +1,44 @@
+.dashboard-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.charts-section {
+  display: flex;
+  gap: 10px; /* 🔽 Reduces the gap between the two charts */
+  margin-bottom: 20px;
+}
+
+.chart-card {
+  flex: 1; /* 🔄 Makes both charts equal width */
+  min-height: 300px; /* 🔁 Ensures equal height, adjust if needed */
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Skills Table */
+.skills-table {
+  flex: 1; /* Matches the chart width */
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.skills-table table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.skills-table th, .skills-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.skills-table th {
+  background-color: #f2f2f2;
+}
