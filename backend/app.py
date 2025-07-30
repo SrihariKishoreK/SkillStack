@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+CORS(app)
 
 # Configure SQLite DB
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///skills.db'
@@ -82,14 +82,18 @@ def add_skill():
 # -------------------------
 # Delete Skill
 # -------------------------
-@app.route('/api/skills/<int:skill_id>', methods=['DELETE'])
+@app.route('/api/skills/<int:skill_id>', methods=['DELETE'])  # ✅ Fixed type
 def delete_skill(skill_id):
-    skill = Skill.query.get(skill_id)
-    if skill:
+    try:
+        skill = Skill.query.get(skill_id)
+        if not skill:
+            return jsonify({"error": "Skill not found"}), 404
+
         db.session.delete(skill)
         db.session.commit()
-        return jsonify({"message": "Skill deleted"}), 200
-    return jsonify({"error": "Skill not found"}), 404
+        return jsonify({"message": "✅ Skill deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # -------------------------
 # Recommend Resources

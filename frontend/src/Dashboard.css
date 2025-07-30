@@ -269,3 +269,75 @@ button:hover {
   border-radius: 4px;
   font-style: italic;
 }
+.recommendation-section {
+  background-color: #f5f5f5;
+  padding: 15px;
+  margin-top: 20px;
+  border-radius: 8px;
+}
+
+.recommendation-item {
+  margin-bottom: 10px;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.recommendation-item a {
+  text-decoration: none;
+  color: #1d3557;
+  transition: color 0.3s ease;
+}
+
+.recommendation-item a:hover {
+  color: #e63946;
+}
+.dashboard {
+  padding: 20px;
+}
+
+.skill-card {
+  border: 1px solid #ccc;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  background: #f9f9f9;
+}
+
+.video-box {
+  margin-top: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.dashboard-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.skill-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.skill-table th, .skill-table td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+
+.skill-table th {
+  background-color: #f4f4f4;
+}
+
+.recommendation-list {
+  margin-top: 15px;
+  padding-left: 20px;
+}
+.skill-table th {
+  background-color: #f4f4f4;
+  color: black; 
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
