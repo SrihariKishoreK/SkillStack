@@ -51,3 +51,9 @@
   text-align: left;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
 }
+.skill-form label {
+  display: block;
+  margin-top: 15px;
+  font-weight: bold;  /* Made bold */
+  color: #333;
+}

@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import SkillForm from "./SkillForm";
 import Dashboard from "./Dashboard";
-import './App.css';
+import "./App.css";
 
 function App() {
   return (
