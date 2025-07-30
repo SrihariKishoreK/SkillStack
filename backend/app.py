@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 CORS(app)
@@ -22,6 +23,18 @@ class Skill(db.Model):
     hours = db.Column(db.Float)
     notes = db.Column(db.Text)
     difficulty = db.Column(db.Integer)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "skill": self.skill,
+            "resource": self.resource,
+            "platform": self.platform,
+            "progress": self.progress,
+            "hours": self.hours,
+            "notes": self.notes,
+            "difficulty": self.difficulty
+        }
 
 # -------------------------
 # Create DB at app startup
@@ -47,6 +60,63 @@ def delete_skill(id):
     except Exception as e:
         print("Error deleting skill:", e)
         return jsonify({'error': 'Error deleting skill'}), 500
+
+#-------------------------------------
+# Recommend learning resource Route
+#-------------------------------------
+@app.route('/api/recommend', methods=['GET'])
+def recommend_resource():
+    try:
+        latest_skill = Skill.query.order_by(Skill.id.desc()).first()
+
+        if not latest_skill:
+            return jsonify({"recommendations": ["No skills added yet. Start learning something new!"]})
+
+        skill_name = latest_skill.skill.lower()
+
+        # Find resources used for this specific skill
+        matching_skills = Skill.query.filter(Skill.skill.ilike(skill_name)).all()
+
+        if not matching_skills:
+            return jsonify({"recommendations": ["No similar skills found to generate suggestions."]})
+
+        resource_count = {}
+        for s in matching_skills:
+            resource = s.resource.lower()
+            resource_count[resource] = resource_count.get(resource, 0) + 1
+
+        # Sort by most frequent resource used
+        best_resource = max(resource_count.items(), key=lambda x: x[1])[0]
+        message = f"Try using '{best_resource.title()}' for learning '{skill_name.title()}'!"
+
+        return jsonify({"recommendations": [message]})
+
+    except Exception as e:
+        print("Recommendation error:", e)
+        return jsonify({"recommendations": ["No suggestions available"]}), 500
+
+#--------------------------
+# Skill Mastery Prediction
+#--------------------------
+@app.route('/api/predict', methods=['POST'])
+def predict_mastery_date():
+    try:
+        data = request.get_json()
+        skill_name = data.get('skill')
+        current_hours = data.get('hours', 0)
+        daily_avg_hours = data.get('daily_hours', 1)
+
+        hours_left = max(0, 20 - current_hours)
+        days_needed = int(hours_left / daily_avg_hours) if daily_avg_hours > 0 else 999
+
+        estimated_date = (datetime.now() + timedelta(days=days_needed)).strftime("%Y-%m-%d")
+
+        return jsonify({
+            "estimated_mastery_date": estimated_date
+        })
+
+    except Exception as e:
+        return jsonify({"error": "Prediction failed", "details": str(e)}), 500
 
 # -------------------------
 # Add Skill Route
@@ -80,17 +150,7 @@ def add_skill():
 @app.route('/api/skills', methods=['GET'])
 def get_skills():
     skills = Skill.query.all()
-    result = [{
-        "id": s.id,
-        "skill": s.skill,
-        "resource": s.resource,
-        "platform": s.platform,
-        "progress": s.progress,
-        "hours": s.hours,
-        "notes": s.notes,
-        "difficulty": s.difficulty
-    } for s in skills]
-    return jsonify(result)
+    return jsonify([skill.to_dict() for skill in skills])
 
 # -------------------------
 # Run App

@@ -1,0 +1,6 @@
+# Ignore backend-specific folders
+backend/instance/
+backend/venv/
+
+# Ignore frontend dependencies
+frontend/node_modules/

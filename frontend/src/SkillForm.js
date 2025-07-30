@@ -10,50 +10,70 @@ const SkillForm = () => {
   const [notes, setNotes] = useState("");
   const [difficulty, setDifficulty] = useState(1);
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const skillData = {
-    skill: skillName,
-    resource,
-    platform,
-    progress,
-    hours: parseFloat(hoursSpent),
-    notes,
-    difficulty: parseInt(difficulty)
+    const skillData = {
+      skill: skillName,
+      resource,
+      platform,
+      progress,
+      hours: parseFloat(hoursSpent),
+      notes,
+      difficulty: parseInt(difficulty)
+    };
+
+    try {
+      const response = await fetch("http://localhost:5000/api/skills", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(skillData)
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert("✅ Skill added successfully");
+
+        // Reset form
+        setSkillName("");
+        setResource("Video");
+        setPlatform("Udemy");
+        setProgress("Started");
+        setHoursSpent(0);
+        setNotes("");
+        setDifficulty(1);
+
+        // Fetch updated recommendation
+        fetchRecommendation();
+
+      } else {
+        console.error("Failed to add skill:", result.error || "Unknown error");
+        alert("Failed to add skill: " + (result.error || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error adding skill:", error);
+      alert("Failed to add skill: " + error.message);
+    }
   };
 
-  try {
-    const response = await fetch('http://localhost:5000/api/skills', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(skillData),
-    });
+  const fetchRecommendation = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/recommend");
+      const data = await response.json();
 
-    const result = await response.json();
-
-    if (response.ok) {
-      alert("Skill added successfully");
-
-      setSkillName('');
-      setResource('Video');
-      setPlatform('Udemy');
-      setProgress('Started');
-      setHoursSpent(0);
-      setNotes('');
-      setDifficulty(1);
-    } else {
-      console.error("Failed to add skill:", result.error || "Unknown error");
-      alert("Failed to add skill: " + (result.error || "Unknown error"));
+      if (response.ok && data.recommendation) {
+        // Store the latest recommendation in localStorage
+        const storedRecs = JSON.parse(localStorage.getItem("recommendations")) || [];
+        if (!storedRecs.includes(data.recommendation)) {
+          storedRecs.push(data.recommendation);
+        }
+        localStorage.setItem("recommendations", JSON.stringify(storedRecs));
+      }
+    } catch (error) {
+      console.error("Failed to fetch recommendation:", error);
     }
-  } catch (error) {
-    console.error("Error adding skill:", error);
-    alert("Failed to add skill: " + error.message);
-  }
-};
-
+  };
 
   return (
     <form className="skill-form" onSubmit={handleSubmit}>

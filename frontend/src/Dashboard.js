@@ -1,134 +1,143 @@
-import {
-  Chart as ChartJS,
-  ArcElement,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Title,
-  Tooltip,
-  Legend
-} from 'chart.js';
-
-ChartJS.register(
-  ArcElement,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Title,
-  Tooltip,
-  Legend
-);
-
-import React, { useEffect, useState } from 'react';
-import { Pie, Bar } from 'react-chartjs-2';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
+import Chart from 'chart.js/auto';
 import './Dashboard.css';
 
-const Dashboard = () => {
+function Dashboard() {
   const [skills, setSkills] = useState([]);
+  const [recommendations, setRecommendations] = useState([]);
+  const chartRef = useRef(null); // reference to the chart instance
+
+  // Fetch all skills
+  const fetchSkills = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/skills');
+      setSkills(response.data);
+    } catch (error) {
+      console.error('Error fetching skills:', error);
+    }
+  };
+
+  // Fetch recommendations
+  const fetchRecommendations = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/recommend');
+      if (response.data.recommendations && Array.isArray(response.data.recommendations)) {
+        setRecommendations(response.data.recommendations);
+      } else {
+        setRecommendations([]);
+      }
+    } catch (error) {
+      console.error('Error fetching recommendations:', error);
+      setRecommendations([]);
+    }
+  };
+
+  const deleteSkill = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/skills/${id}`);
+      fetchSkills();
+      fetchRecommendations();
+    } catch (error) {
+      console.error('Error deleting skill:', error);
+    }
+  };
 
   useEffect(() => {
     fetchSkills();
+    fetchRecommendations();
   }, []);
 
-  const fetchSkills = async () => {
-  try {
-    const response = await axios.get('http://localhost:5000/api/skills');
-    setSkills(response.data);
-  } catch (error) {
-    console.error('Error fetching skills:', error);
-  }
-};
+  useEffect(() => {
+    if (skills.length === 0) return;
 
-  const categoryData = () => {
-    const categories = {};
-    skills.forEach(skill => {
-      categories[skill.resource] = (categories[skill.resource] || 0) + 1;
-    });
-    return {
-      labels: Object.keys(categories),
-      datasets: [{
-        data: Object.values(categories),
-        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#78C2AD'],
-        hoverOffset: 4
-      }]
+    const progressCounts = {
+      Started: 0,
+      'In-Progress': 0,
+      Completed: 0,
     };
-  };
 
-  const progressData = () => {
-    const progressCount = { started: 0, in_progress: 0, completed: 0 };
     skills.forEach(skill => {
-      const state = skill.progress.toLowerCase().replace(' ', '_');
-      progressCount[state] = (progressCount[state] || 0) + 1;
+      progressCounts[skill.progress]++;
     });
-    return {
-      labels: ['Started', 'In Progress', 'Completed'],
-      datasets: [{
-        label: 'Skill Progress',
-        data: [progressCount.started, progressCount.in_progress, progressCount.completed],
-        backgroundColor: ['#FFA07A', '#87CEFA', '#90EE90']
-      }]
-    };
-  };
 
-  const handleDelete = async (id) => {
-  try {
-    await axios.delete(`http://localhost:5000/api/skills/${id}`);
-    fetchSkills(); // refresh the list
-  } catch (error) {
-    console.error('Failed to delete skill:', error);
-  }
-};
+    const ctx = document.getElementById('progressChart');
 
+    // Destroy previous chart instance if exists
+    if (chartRef.current) {
+      chartRef.current.destroy();
+    }
+
+    chartRef.current = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Started', 'In-Progress', 'Completed'],
+        datasets: [{
+          label: 'Skill Progress',
+          data: [
+            progressCounts.Started,
+            progressCounts['In-Progress'],
+            progressCounts.Completed,
+          ],
+          backgroundColor: ['#ffc107', '#17a2b8', '#28a745'],
+        }],
+      },
+    });
+
+  }, [skills]);
 
   return (
-    <div className="dashboard-container">
-      <h2>SkillStack Dashboard</h2>
-      <div className="charts-section">
-        <div className="chart-card">
-          <h3>Category-wise Breakdown</h3>
-          <Pie data={categoryData()} />
-        </div>
-        <div className="chart-card">
-          <h3>Progress Overview</h3>
-          <Bar data={progressData()} />
-        </div>
+    <div className="dashboard">
+      <h2>Dashboard</h2>
+
+      <div className="recommendations">
+        <h3>Resource Recommendations</h3>
+        {recommendations.length === 0 ? (
+          <p>No recommendations available.</p>
+        ) : (
+          <ul>
+            {recommendations.map((rec, index) => (
+              <li key={index}>{rec}</li>
+            ))}
+          </ul>
+        )}
       </div>
 
-      <div className="skills-table">
-        <h3>All Skills</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Skill</th>
-              <th>Resource</th>
-              <th>Platform</th>
-              <th>Progress</th>
-              <th>Hours</th>
-              <th>Difficulty</th>
-              <th>Actions</th>
+      <h3>All Skills</h3>
+      <table className="skill-table">
+        <thead>
+          <tr>
+            <th>Skill</th>
+            <th>Resource</th>
+            <th>Platform</th>
+            <th>Progress</th>
+            <th>Hours</th>
+            <th>Difficulty</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {skills.map(skill => (
+            <tr key={skill.id}>
+              <td>{skill.skill_name}</td>
+              <td>{skill.resource}</td>
+              <td>{skill.platform}</td>
+              <td>{skill.progress}</td>
+              <td>{skill.hours}</td>
+              <td>{skill.difficulty}</td>
+              <td>
+                <button onClick={() => alert('Edit feature not implemented')} className="btn btn-primary">Edit</button>
+                <button onClick={() => deleteSkill(skill.id)} className="btn btn-danger" style={{ marginLeft: '5px' }}>Delete</button>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {skills.map(skill => (
-              <tr key={skill.id}>
-                <td>{skill.skill}</td>
-                <td>{skill.resource}</td>
-                <td>{skill.platform}</td>
-                <td>{skill.progress}</td>
-                <td>{skill.hours}</td>
-                <td>{skill.difficulty}</td>
-                <td>
-                  <button>Edit</button>
-                  <button onClick={() => handleDelete(skill.id)}>Delete</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
+
+      <h3>Skill Progress Overview</h3>
+      <canvas id="progressChart" width="400" height="200"></canvas>
     </div>
   );
-};
+}
 
 export default Dashboard;
