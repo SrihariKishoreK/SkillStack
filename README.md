@@ -7,6 +7,10 @@ After setting up all the files open the backend folder in Visual Studio Code and
 
 After executing all these commands there will be a database file created called "skill.db" inside a folder named instance. Then the database should be deleted that is the skill.db and the instance folder should be deleted for each and every execution so that there will be no error else there will be an error face that "skills can't be added".
 
+The backend should run in localhost 5000 after starting the database.
+
 After setting up the frontend execute the below commands 
 1) npm install
 2) npm start
+
+The frontend should run in localhost 3000 after executing the react app.
