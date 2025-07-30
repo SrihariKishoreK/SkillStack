@@ -6,10 +6,6 @@ After setting up all the files open the backend folder in Visual Studio Code and
 3) pip install flask flask_sqlalchemy flask_cors
 4) python app.py
 
-After executing all these commands there will be a database file created called "skill.db" inside a folder named instance. Then the database can be deleted that is the skill.db and the instance folder can be deleted for each and every execution of the database so that there will be no error else there might be an error face that "skills can't be added".
-
-This error will not occur for sure if you keep the old database and again start the database it might show the error or it may continue with the old database. Since I have faced the error for several times, I strongly recommend to delete the old database after stopping it and restarting it again. 
-
 The back-end should run in localhost 5000 after starting the database.
 
 After setting up the frontend execute the below commands 
@@ -17,3 +13,9 @@ After setting up the frontend execute the below commands
 2) npm start
 
 The front-end should run in localhost 3000 after executing the react app.
+
+Note:
+
+After executing all these commands, a database file named skill.db will be created inside an instance folder (located within the backend directory). Before each execution, it is recommended to delete the existing skill.db file and the instance folder to avoid potential errors. Otherwise, you might encounter an error stating "skills can't be added."
+
+This error typically does not occur if the existing database is retained, but there's a chance it may still appear or continue using the old database. Since I have encountered this error multiple times, I strongly recommend deleting the old database after stopping the application and before restarting it.
