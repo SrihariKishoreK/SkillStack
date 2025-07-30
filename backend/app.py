@@ -105,12 +105,20 @@ def recommend_resources():
         skills = data.get('skills', [])
 
         recommendations_map = {
-            "python": "✅ Try 'Python for Beginners' on Simplilearn.",
-            "java": "✅ Check out 'Java Programming Masterclass' on Udemy.",
-            "c": "✅ Read 'The C Programming Language' by Dennis Ritchie.",
-            "javascript": "✅ Try 'JavaScript Essentials' on Codecademy.",
-            "react": "✅ Explore 'React for Beginners' on Scrimba."
-        }
+    "python": "✅ Try <a href='https://www.youtube.com/watch?v=rfscVS0vtbw' target='_blank'>Python for Beginners</a> by freeCodeCamp.",
+    "java": "✅ Check out <a href='https://www.youtube.com/watch?v=grEKMHGYyns' target='_blank'>Java Full Course</a> by BroCode.",
+    "c": "✅ Watch <a href='https://www.youtube.com/watch?v=irqbmMNs2Bo' target='_blank'>C Programming Tutorial</a> by freeCodeCamp.",
+    "javascript": "✅ Try <a href='https://www.youtube.com/watch?v=PkZNo7MFNFg' target='_blank'>JavaScript Full Course</a> by freeCodeCamp.",
+    "react": "✅ Explore <a href='https://www.youtube.com/watch?v=bMknfKXIFA8' target='_blank'>React Full Course</a> by freeCodeCamp.",
+    "mongodb": "✅ Learn from <a href='https://www.youtube.com/watch?v=-56x56UppqQ' target='_blank'>MongoDB Tutorial</a> by freeCodeCamp.",
+    "typescript": "✅ Take <a href='https://www.youtube.com/watch?v=30LWjhZzg50' target='_blank'>TypeScript Course</a> by Programming with Mosh.",
+    "html": "✅ Try <a href='https://www.youtube.com/watch?v=pQN-pnXPaVg' target='_blank'>HTML Tutorial</a> by freeCodeCamp.",
+    "css": "✅ Learn <a href='https://www.youtube.com/watch?v=OXGznpKZ_sA' target='_blank'>CSS Full Course</a> by freeCodeCamp.",
+    "node": "✅ Master Node.js via <a href='https://www.youtube.com/watch?v=Oe421EPjeBE' target='_blank'>Node.js Full Course</a> by freeCodeCamp.",
+    "express": "✅ Learn Express from <a href='https://www.youtube.com/watch?v=L72fhGm1tfE' target='_blank'>Express.js Crash Course</a> by Traversy Media."
+}
+
+
 
         recommendations = []
         for entry in skills:

@@ -1,11 +1,8 @@
-import React, { useEffect, useState } from "react";
-import "./Dashboard.css";
-import { Pie } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import React, { useEffect, useState } from 'react';
+import Chart from 'chart.js/auto';
+import './Dashboard.css';
 
-ChartJS.register(ArcElement, Tooltip, Legend);
-
-const Dashboard = () => {
+function Dashboard() {
   const [skills, setSkills] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
 
@@ -13,122 +10,144 @@ const Dashboard = () => {
     fetchSkills();
   }, []);
 
+  useEffect(() => {
+    if (skills.length > 0) {
+      drawPieChart();
+      drawBarChart();
+    }
+  }, [skills]);
+
   const fetchSkills = async () => {
-    const res = await fetch("http://localhost:5000/api/skills");
-    const data = await res.json();
-    setSkills(data);
-    fetchRecommendations(data);
-  };
-
-  const fetchRecommendations = async (skillList) => {
     try {
-      const res = await fetch("http://localhost:5000/recommendations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ skills: skillList }),
-      });
+      const res = await fetch('http://localhost:5000/api/skills');
       const data = await res.json();
-      setRecommendations(data.recommendations);
-    } catch (err) {
-      console.error("Error fetching recommendations:", err);
-    }
-  };
+      setSkills(data);
 
-  const handleDelete = async (id) => {
-    try {
-      const res = await fetch(`http://localhost:5000/api/skills/${id}`, {
-        method: "DELETE",
+      const recRes = await fetch('http://localhost:5000/recommendations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ skills: data })
       });
-
-      if (res.ok) {
-        const updated = skills.filter((skill) => skill.id !== id);
-        setSkills(updated);
-        fetchRecommendations(updated);
-      } else {
-        console.error("Failed to delete skill");
-      }
+      const recData = await recRes.json();
+      setRecommendations(recData.recommendations);
     } catch (err) {
-      console.error("Delete error:", err);
+      console.error('Error fetching skills or recommendations:', err);
     }
   };
 
-  // PieChart data
-  const progressCount = skills.reduce(
-    (acc, curr) => {
-      acc[curr.progress] = (acc[curr.progress] || 0) + 1;
-      return acc;
-    },
-    { Started: 0, "In Progress": 0, Completed: 0 }
-  );
+  const drawPieChart = () => {
+    const ctx = document.getElementById('pieChart');
+    if (Chart.getChart(ctx)) Chart.getChart(ctx).destroy();
 
-  const pieData = {
-    labels: ["Started", "In Progress", "Completed"],
-    datasets: [
-      {
-        data: [
-          progressCount["Started"],
-          progressCount["In Progress"],
-          progressCount["Completed"],
-        ],
-        backgroundColor: ["#f9c74f", "#90be6d", "#577590"],
-        borderWidth: 1,
+    const progressCounts = { Started: 0, 'In Progress': 0, Completed: 0 };
+    skills.forEach(skill => {
+      progressCounts[skill.progress] = (progressCounts[skill.progress] || 0) + 1;
+    });
+
+    new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: Object.keys(progressCounts),
+        datasets: [{
+          data: Object.values(progressCounts),
+          backgroundColor: ['#f39c12', '#3498db', '#2ecc71']
+        }]
+      }
+    });
+  };
+
+  const drawBarChart = () => {
+    const ctx = document.getElementById('barChart');
+    if (Chart.getChart(ctx)) Chart.getChart(ctx).destroy();
+
+    const timeMap = {};
+    skills.forEach(skill => {
+      const name = skill.skill;
+      timeMap[name] = (timeMap[name] || 0) + skill.hours;
+    });
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(timeMap),
+        datasets: [{
+          label: 'Hours Spent',
+          data: Object.values(timeMap),
+          backgroundColor: '#8e44ad'
+        }]
       },
-    ],
+      options: {
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  };
+
+  const deleteSkill = async (id) => {
+    await fetch(`http://localhost:5000/api/skills/${id}`, {
+      method: 'DELETE'
+    });
+    fetchSkills();
   };
 
   return (
-    <div className="dashboard-container">
-      <h2>📊 Skill Progress Dashboard</h2>
+    <div className="dashboard">
+      <h2>Skill Insights Dashboard</h2>
 
-      <div className="chart-section">
-        <h3>Progress Overview</h3>
-        <Pie data={pieData} />
+      <div className="charts-container-vertical">
+        <div className="chart-box">
+          <h4>Progress Breakdown</h4>
+          <canvas id="pieChart"></canvas>
+        </div>
+        <div className="chart-box">
+          <h4>Time Spent per Skill</h4>
+          <canvas id="barChart"></canvas>
+        </div>
       </div>
 
-      <div className="table-section">
-        <h3>📚 Skill Entries</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Skill</th>
-              <th>Resource</th>
-              <th>Platform</th>
-              <th>Progress</th>
-              <th>Hours</th>
-              <th>Difficulty</th>
-              <th>Action</th>
+      <h3> Skills Table</h3>
+      <table className="skills-table">
+        <thead>
+          <tr>
+            <th style={{ color: 'black' }}>Skill</th>
+            <th style={{ color: 'black' }}>Resource</th>
+            <th style={{ color: 'black' }}>Platform</th>
+            <th style={{ color: 'black' }}>Progress</th>
+            <th style={{ color: 'black' }}>Hours</th>
+            <th style={{ color: 'black' }}>Difficulty</th>
+            <th style={{ color: 'black' }}>Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          {skills.map((skill) => (
+            <tr key={skill.id}>
+              <td>{skill.skill}</td>
+              <td>{skill.resource}</td>
+              <td>{skill.platform}</td>
+              <td>{skill.progress}</td>
+              <td>{skill.hours}</td>
+              <td>{skill.difficulty}</td>
+              <td>
+                <button onClick={() => deleteSkill(skill.id)}>❌</button>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {skills.map((skill) => (
-              <tr key={skill.id}>
-                <td>{skill.skill}</td>
-                <td>{skill.resource}</td>
-                <td>{skill.platform}</td>
-                <td>{skill.progress}</td>
-                <td>{skill.hours}</td>
-                <td>{skill.difficulty}</td>
-                <td>
-                  <button onClick={() => handleDelete(skill.id)}>🗑 Delete</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="recommendation-section">
-        <h3>🤖 Recommended Resources</h3>
-        <ul>
-          {recommendations.map((rec, index) => (
-            <li key={index} className="recommendation-item">
-              {rec}
-            </li>
           ))}
-        </ul>
-      </div>
+        </tbody>
+      </table>
+
+      <h3>Recommended Resources</h3>
+      <div className="recommendation-container">
+        {recommendations.map((rec, index) => (
+        <div
+      className="recommendation-box"
+      key={index}
+      dangerouslySetInnerHTML={{ __html: rec }}
+    ></div>
+  ))}
+</div>
     </div>
   );
-};
+}
 
 export default Dashboard;
